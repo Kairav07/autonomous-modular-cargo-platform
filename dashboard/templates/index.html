@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AMCP Cargo OS</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #07152b;
+            color: white;
+        }
+
+        header {
+            padding: 24px 40px;
+            border-bottom: 1px solid #26354d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand h1 {
+            margin: 0;
+            color: #ffd43b;
+            letter-spacing: 1px;
+        }
+
+        .brand p {
+            margin: 5px 0 0;
+            color: #8fa2be;
+        }
+
+        #connection {
+            padding: 9px 16px;
+            border-radius: 20px;
+            background: #26354d;
+            font-size: 14px;
+        }
+
+        main {
+            padding: 35px 40px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #0d203d;
+            border: 1px solid #243b5f;
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #8fa2be;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .value {
+            font-size: 30px;
+            font-weight: bold;
+            color: #ffd43b;
+        }
+
+        .sensor-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .sensor {
+            height: 45px;
+            flex: 1;
+            border-radius: 6px;
+            background: #233653;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .sensor.active {
+            background: #ffd43b;
+            color: #07152b;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #637999;
+            font-size: 13px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<header>
+
+    <div class="brand">
+        <h1>AMCP</h1>
+        <p>Autonomous Modular Cargo Platform</p>
+    </div>
+
+    <div id="connection">
+        ESP32 DISCONNECTED
+    </div>
+
+</header>
+
+<main>
+
+    <div class="grid">
+
+        <div class="card">
+            <h3>Navigation</h3>
+            <div class="value" id="action">WAITING</div>
+        </div>
+
+        <div class="card">
+            <h3>Obstacle Distance</h3>
+            <div class="value">
+                <span id="distance">0</span> cm
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Obstacle</h3>
+            <div class="value" id="obstacle">CLEAR</div>
+        </div>
+
+        <div class="card">
+            <h3>Junction</h3>
+            <div class="value" id="junction">NO</div>
+        </div>
+
+        <div class="card">
+            <h3>Path</h3>
+            <div class="value" id="path">NOT DETECTED</div>
+        </div>
+
+    </div>
+
+
+    <div class="card" style="margin-top:20px;">
+
+        <h3>IR Line Sensors</h3>
+
+        <div class="sensor-container">
+
+            <div class="sensor" id="s0">0</div>
+            <div class="sensor" id="s1">0</div>
+            <div class="sensor" id="s2">0</div>
+            <div class="sensor" id="s3">0</div>
+            <div class="sensor" id="s4">0</div>
+
+        </div>
+
+    </div>
+
+    <footer>
+        Cargo OS • AMCP Prototype
+    </footer>
+
+</main>
+
+
+<script>
+
+async function updateTelemetry() {
+
+    try {
+
+        const response = await fetch("/api/telemetry");
+
+        const data = await response.json();
+
+
+        const connection = document.getElementById("connection");
+
+        if (data.connected) {
+            connection.textContent = "ESP32 CONNECTED";
+        } else {
+            connection.textContent = "ESP32 DISCONNECTED";
+        }
+
+
+        document.getElementById("action").textContent =
+            data.action || "WAITING";
+
+
+        document.getElementById("distance").textContent =
+            data.distance_cm ?? 0;
+
+
+        document.getElementById("obstacle").textContent =
+            data.obstacle ? "DETECTED" : "CLEAR";
+
+
+        document.getElementById("junction").textContent =
+            data.junction ? "YES" : "NO";
+
+
+        document.getElementById("path").textContent =
+            data.path_detected ? "DETECTED" : "NOT DETECTED";
+
+
+        const sensors = (data.line || "00000").split("");
+
+
+        sensors.forEach((value, index) => {
+
+            const element = document.getElementById("s" + index);
+
+            if (!element) return;
+
+            element.textContent = value;
+
+            if (value === "1") {
+                element.classList.add("active");
+            } else {
+                element.classList.remove("active");
+            }
+
+        });
+
+    }
+
+    catch (error) {
+
+        console.error("Telemetry error:", error);
+
+    }
+
+}
+
+
+setInterval(updateTelemetry, 500);
+
+updateTelemetry();
+
+</script>
+
+</body>
+</html>
