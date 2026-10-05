@@ -1,261 +1,1524 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AMCP Cargo OS</title>
 
-    <title>AMCP Cargo OS</title>
+  <style>
+    :root {
+      --bg: #05070b;
+      --panel: rgba(255, 255, 255, 0.07);
+      --panel-strong: rgba(255, 255, 255, 0.1);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f5f7fb;
+      --muted: #97a3b6;
+      --yellow: #ffd84d;
+      --yellow-strong: #ffcc00;
+      --green: #36d67d;
+      --red: #ff5f57;
+      --blue: #4da3ff;
+      --orange: #ff9f43;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+      --radius-xl: 30px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 14px;
+    }
 
-    <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        * {
-            box-sizing: border-box;
-        }
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family: Inter, SF Pro Display, SF Pro Text, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255, 216, 77, 0.12), transparent 25%),
+        radial-gradient(circle at top right, rgba(77, 163, 255, 0.10), transparent 30%),
+        linear-gradient(180deg, #070b12 0%, #05070b 100%);
+      color: var(--text);
+      overflow-x: hidden;
+    }
 
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #07152b;
-            color: white;
-        }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+    }
 
-        header {
-            padding: 24px 40px;
-            border-bottom: 1px solid #26354d;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .scene {
+      width: 100%;
+      max-width: 1400px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 30px;
+      align-items: center;
+    }
 
-        .brand h1 {
-            margin: 0;
-            color: #ffd43b;
-            letter-spacing: 1px;
-        }
+    .hero {
+      padding: 16px 10px 16px 8px;
+      animation: fadeUp 0.8s ease;
+    }
 
-        .brand p {
-            margin: 5px 0 0;
-            color: #8fa2be;
-        }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 18px;
+      backdrop-filter: blur(14px);
+    }
 
-        #connection {
-            padding: 9px 16px;
-            border-radius: 20px;
-            background: #26354d;
-            font-size: 14px;
-        }
+    .eyebrow-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 12px rgba(54, 214, 125, 0.8);
+      animation: pulseDot 1.8s infinite;
+    }
 
-        main {
-            padding: 35px 40px;
-        }
+    .hero h1 {
+      margin: 0 0 14px;
+      font-size: clamp(38px, 5vw, 68px);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      font-weight: 800;
+    }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-            gap: 20px;
-        }
+    .hero h1 .accent {
+      color: var(--yellow);
+    }
 
-        .card {
-            background: #0d203d;
-            border: 1px solid #243b5f;
-            border-radius: 14px;
-            padding: 22px;
-        }
+    .hero p {
+      margin: 0;
+      max-width: 560px;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--muted);
+    }
 
-        .card h3 {
-            margin-top: 0;
-            color: #8fa2be;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+    .hero-grid {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      gap: 16px;
+      max-width: 560px;
+    }
 
-        .value {
-            font-size: 30px;
-            font-weight: bold;
-            color: #ffd43b;
-        }
+    .hero-card {
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      animation: fadeUp 0.9s ease both;
+    }
 
-        .sensor-container {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
+    .hero-card:nth-child(2) { animation-delay: 0.05s; }
+    .hero-card:nth-child(3) { animation-delay: 0.1s; }
+    .hero-card:nth-child(4) { animation-delay: 0.15s; }
 
-        .sensor {
-            height: 45px;
-            flex: 1;
-            border-radius: 6px;
-            background: #233653;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-        }
+    .hero-card .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
 
-        .sensor.active {
-            background: #ffd43b;
-            color: #07152b;
-        }
+    .hero-card .value {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
 
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            color: #637999;
-            font-size: 13px;
-        }
+    .phone-wrap {
+      display: flex;
+      justify-content: center;
+      animation: phoneFloat 5s ease-in-out infinite;
+    }
 
-    </style>
+    .phone {
+      width: 390px;
+      height: 820px;
+      border-radius: 44px;
+      padding: 12px;
+      background: linear-gradient(180deg, #101419 0%, #000 100%);
+      box-shadow:
+        0 40px 120px rgba(0, 0, 0, 0.55),
+        inset 0 0 0 1px rgba(255,255,255,0.08),
+        inset 0 0 40px rgba(255,255,255,0.03);
+      position: relative;
+    }
 
+    .phone::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 44px;
+      pointer-events: none;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.04);
+    }
+
+    .screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 34px;
+      overflow: hidden;
+      position: relative;
+      background:
+        radial-gradient(circle at top, rgba(255, 216, 77, 0.16), transparent 22%),
+        radial-gradient(circle at bottom right, rgba(77, 163, 255, 0.14), transparent 28%),
+        linear-gradient(180deg, #0d1118 0%, #080b11 100%);
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .statusbar {
+      height: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px 0 18px;
+      font-size: 12px;
+      color: #dfe7f2;
+      flex-shrink: 0;
+    }
+
+    .status-right {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .pill-icon {
+      width: 18px;
+      height: 10px;
+      border-radius: 99px;
+      border: 1.5px solid rgba(255,255,255,0.85);
+      position: relative;
+    }
+
+    .pill-icon::after {
+      content: "";
+      position: absolute;
+      right: -3px;
+      top: 2px;
+      width: 2px;
+      height: 4px;
+      border-radius: 1px;
+      background: rgba(255,255,255,0.85);
+    }
+
+    .pill-level {
+      position: absolute;
+      inset: 1px;
+      width: 70%;
+      border-radius: 99px;
+      background: #fff;
+    }
+
+    .dynamic-island {
+      width: 126px;
+      height: 34px;
+      margin: 8px auto 12px;
+      border-radius: 999px;
+      background: #000;
+      box-shadow: inset 0 -1px 0 rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .island-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(54,214,125,0.8);
+      animation: pulseDot 1.8s infinite;
+    }
+
+    .island-text {
+      font-size: 11px;
+      color: #dbe6f6;
+      letter-spacing: 0.04em;
+    }
+
+    .app {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 0 14px 14px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .app-title h2 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: -0.04em;
+    }
+
+    .app-title p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .chip-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--border);
+      color: #e6edf7;
+      font-size: 12px;
+      backdrop-filter: blur(14px);
+    }
+
+    .chip.live .mini-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(54,214,125,0.8);
+    }
+
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 2px;
+      scrollbar-width: none;
+    }
+
+    .scroll-area::-webkit-scrollbar {
+      display: none;
+    }
+
+    .page {
+      display: none;
+      animation: fadePage 0.28s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .glass-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.24);
+      backdrop-filter: blur(24px);
+      margin-bottom: 14px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 15px;
+      color: #f4f8ff;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .card-subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .badge {
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+
+    .badge.yellow {
+      background: rgba(255, 216, 77, 0.14);
+      color: #ffe892;
+      border-color: rgba(255, 216, 77, 0.2);
+    }
+
+    .badge.green {
+      background: rgba(54, 214, 125, 0.14);
+      color: #85f0b1;
+      border-color: rgba(54, 214, 125, 0.2);
+    }
+
+    .badge.red {
+      background: rgba(255, 95, 87, 0.14);
+      color: #ff9f9b;
+      border-color: rgba(255, 95, 87, 0.2);
+    }
+
+    .badge.blue {
+      background: rgba(77, 163, 255, 0.14);
+      color: #9ecbff;
+      border-color: rgba(77, 163, 255, 0.2);
+    }
+
+    .hero-status {
+      padding: 22px;
+      border-radius: 28px;
+      background:
+        linear-gradient(135deg, rgba(255,216,77,0.14), rgba(255,255,255,0.05)),
+        rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-status::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      top: -60px;
+      right: -40px;
+      background: radial-gradient(circle, rgba(255,216,77,0.18), transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-status .kicker {
+      font-size: 12px;
+      color: #f4d86d;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .hero-status .big {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .hero-status .desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 260px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .metric-card {
+      padding: 16px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .metric-caption {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .signal-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .signal-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .signal-meta strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .signal-meta span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .signal-state {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .sensor-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .sensor-node {
+      aspect-ratio: 1 / 1.08;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sensor-node::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: 0.25s ease;
+      background: radial-gradient(circle at center, rgba(255,216,77,0.18), transparent 68%);
+    }
+
+    .sensor-node.active {
+      transform: translateY(-3px);
+      border-color: rgba(255,216,77,0.35);
+      box-shadow: 0 10px 30px rgba(255,216,77,0.12);
+    }
+
+    .sensor-node.active::before {
+      opacity: 1;
+    }
+
+    .sensor-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+      transition: 0.25s ease;
+      z-index: 1;
+    }
+
+    .sensor-node.active .sensor-dot {
+      background: var(--yellow);
+      box-shadow: 0 0 18px rgba(255,216,77,0.65);
+    }
+
+    .sensor-node span {
+      font-size: 12px;
+      color: #d8e1ee;
+      z-index: 1;
+    }
+
+    .sensor-node b {
+      font-size: 15px;
+      z-index: 1;
+    }
+
+    .progress-wrap {
+      margin-top: 12px;
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .progress-bar {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--yellow), #ffe991);
+      width: 45%;
+      transition: width 0.4s ease;
+      box-shadow: 0 0 20px rgba(255,216,77,0.35);
+    }
+
+    .route-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .route-chip {
+      padding: 14px 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      font-size: 13px;
+      color: #dbe5f2;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.22s ease;
+      user-select: none;
+    }
+
+    .route-chip:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255,216,77,0.22);
+    }
+
+    .route-chip.selected {
+      background: rgba(255,216,77,0.12);
+      border-color: rgba(255,216,77,0.32);
+      color: #fff2b0;
+      box-shadow: 0 10px 24px rgba(255,216,77,0.1);
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .action-btn {
+      border: none;
+      border-radius: 18px;
+      padding: 14px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+      color: #081018;
+      background: var(--yellow);
+      box-shadow: 0 10px 28px rgba(255,216,77,0.18);
+    }
+
+    .action-btn.secondary {
+      color: #f4f7fb;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    .action-btn.danger {
+      color: #fff;
+      background: linear-gradient(180deg, #ff6d66, #e34f48);
+      box-shadow: 0 12px 26px rgba(255,95,87,0.22);
+    }
+
+    .action-btn:active {
+      transform: scale(0.98);
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .stat-tile {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+    }
+
+    .stat-tile .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .stat-tile .top span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-tile .big {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .stat-tile .small {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .timeline {
+      margin-top: 6px;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .timeline-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .timeline-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-top: 4px;
+      background: var(--blue);
+      flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(77,163,255,0.5);
+    }
+
+    .timeline-text strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .timeline-text span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .tabbar {
+      margin-top: 12px;
+      background: rgba(16, 20, 28, 0.88);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 24px;
+      padding: 10px 8px 12px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      flex-shrink: 0;
+      backdrop-filter: blur(24px);
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 4px;
+      border-radius: 18px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .tab-btn .icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid transparent;
+      transition: 0.2s ease;
+      font-size: 14px;
+    }
+
+    .tab-btn.active {
+      color: #ffffff;
+    }
+
+    .tab-btn.active .icon {
+      background: rgba(255,216,77,0.16);
+      border-color: rgba(255,216,77,0.22);
+      box-shadow: 0 10px 20px rgba(255,216,77,0.08);
+    }
+
+    .home-indicator {
+      width: 120px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.28);
+      margin: 10px auto 4px;
+      flex-shrink: 0;
+    }
+
+    .mono {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadePage {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulseDot {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.25);
+        opacity: 0.8;
+      }
+    }
+
+    @keyframes phoneFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @media (max-width: 1100px) {
+      .scene {
+        grid-template-columns: 1fr;
+        justify-items: center;
+      }
+
+      .hero {
+        order: 2;
+        text-align: center;
+        padding: 0;
+      }
+
+      .hero p {
+        margin: 0 auto;
+      }
+
+      .hero-grid {
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 10px;
+      }
+
+      .phone {
+        width: 100%;
+        max-width: 390px;
+        height: 820px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
-
 <body>
 
-<header>
+  <div class="scene">
 
-    <div class="brand">
-        <h1>AMCP</h1>
-        <p>Autonomous Modular Cargo Platform</p>
-    </div>
+    <div class="hero">
+      <div class="eyebrow">
+        <span class="eyebrow-dot"></span>
+        Prototype Interface • AMCP Cargo OS
+      </div>
 
-    <div id="connection">
-        ESP32 DISCONNECTED
-    </div>
+      <h1>
+        Autonomous control,<br />
+        <span class="accent">beautifully visualized.</span>
+      </h1>
 
-</header>
+      <p>
+        A premium phone-style dashboard for the Autonomous Modular Cargo Platform.
+        Monitor navigation, obstacle detection, line sensors, path status, and live telemetry
+        in a polished Apple-inspired interface.
+      </p>
 
-<main>
-
-    <div class="grid">
-
-        <div class="card">
-            <h3>Navigation</h3>
-            <div class="value" id="action">WAITING</div>
+      <div class="hero-grid">
+        <div class="hero-card">
+          <div class="label">Connection</div>
+          <div class="value" id="heroConnection">Disconnected</div>
         </div>
+        <div class="hero-card">
+          <div class="label">Current Action</div>
+          <div class="value" id="heroAction">WAITING</div>
+        </div>
+        <div class="hero-card">
+          <div class="label">Obstacle Distance</div>
+          <div class="value mono"><span id="heroDistance">0</span> cm</div>
+        </div>
+        <div class="hero-card">
+          <div class="label">Path Detection</div>
+          <div class="value" id="heroPath">No Path</div>
+        </div>
+      </div>
+    </div>
 
-        <div class="card">
-            <h3>Obstacle Distance</h3>
-            <div class="value">
-                <span id="distance">0</span> cm
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="screen">
+
+          <div class="statusbar">
+            <div class="mono" id="statusTime">9:41</div>
+            <div class="status-right">
+              <span>5G</span>
+              <div class="pill-icon">
+                <div class="pill-level"></div>
+              </div>
             </div>
-        </div>
+          </div>
 
-        <div class="card">
-            <h3>Obstacle</h3>
-            <div class="value" id="obstacle">CLEAR</div>
-        </div>
+          <div class="dynamic-island">
+            <div class="island-dot" id="islandDot"></div>
+            <div class="island-text" id="islandText">LIVE TELEMETRY</div>
+          </div>
 
-        <div class="card">
-            <h3>Junction</h3>
-            <div class="value" id="junction">NO</div>
-        </div>
+          <div class="app">
 
-        <div class="card">
-            <h3>Path</h3>
-            <div class="value" id="path">NOT DETECTED</div>
-        </div>
+            <div class="topbar">
+              <div class="app-title">
+                <h2>AMCP</h2>
+                <p>Cargo OS Dashboard</p>
+              </div>
 
+              <div class="chip-group">
+                <div class="chip live">
+                  <span class="mini-dot"></span>
+                  <span>Live</span>
+                </div>
+                <div class="chip" id="serialChip">115200</div>
+              </div>
+            </div>
+
+            <div class="scroll-area">
+
+              <!-- OVERVIEW PAGE -->
+              <section class="page active" id="page-overview">
+
+                <div class="hero-status">
+                  <div class="kicker">Mission Status</div>
+                  <div class="big" id="statusActionBig">WAITING</div>
+                  <div class="desc" id="statusDescription">
+                    Waiting for live robot telemetry. Connect the ESP32 to begin live monitoring.
+                  </div>
+                </div>
+
+                <div class="metrics">
+                  <div class="metric-card">
+                    <div class="metric-label">ESP32 Link</div>
+                    <div class="metric-value" id="connectionValue">Offline</div>
+                    <div class="metric-caption" id="connectionCaption">No device currently detected</div>
+                  </div>
+
+                  <div class="metric-card">
+                    <div class="metric-label">Obstacle Distance</div>
+                    <div class="metric-value mono"><span id="distanceValue">0</span> cm</div>
+                    <div class="metric-caption" id="distanceCaption">Ultrasonic range monitor</div>
+                  </div>
+
+                  <div class="metric-card">
+                    <div class="metric-label">Junction</div>
+                    <div class="metric-value" id="junctionValue">NO</div>
+                    <div class="metric-caption">Route node detection</div>
+                  </div>
+
+                  <div class="metric-card">
+                    <div class="metric-label">Path</div>
+                    <div class="metric-value" id="pathValue">NOT DETECTED</div>
+                    <div class="metric-caption">IR-guided navigation line</div>
+                  </div>
+                </div>
+
+                <div class="glass-card">
+                  <div class="card-header">
+                    <div>
+                      <h3 class="card-title">Signal Summary</h3>
+                      <p class="card-subtitle">Core live indicators from your robot controller.</p>
+                    </div>
+                    <div class="badge blue">Overview</div>
+                  </div>
+
+                  <div class="signal-row">
+                    <div class="signal-meta">
+                      <strong>Obstacle Detection</strong>
+                      <span>Real-time forward obstacle flag</span>
+                    </div>
+                    <div class="signal-state" id="obstacleStateBadge">CLEAR</div>
+                  </div>
+
+                  <div class="signal-row">
+                    <div class="signal-meta">
+                      <strong>Line Pattern</strong>
+                      <span>Current 5-sensor IR pattern</span>
+                    </div>
+                    <div class="signal-state mono" id="linePatternText">00000</div>
+                  </div>
+
+                  <div class="signal-row">
+                    <div class="signal-meta">
+                      <strong>Navigation Action</strong>
+                      <span>Current motor/navigation state</span>
+                    </div>
+                    <div class="signal-state" id="actionPill">WAITING</div>
+                  </div>
+                </div>
+
+              </section>
+
+              <!-- SENSORS PAGE -->
+              <section class="page" id="page-sensors">
+
+                <div class="glass-card">
+                  <div class="card-header">
+                    <div>
+                      <h3 class="card-title">IR Line Sensor Array</h3>
+                      <p class="card-subtitle">White surface = 0 • Dark line / track = 1</p>
+                    </div>
+                    <div class="badge yellow">5 Channel</div>
+                  </div>
+
+                  <div class="sensor-strip">
+                    <div class="sensor-node" id="sensor0">
+                      <div class="sensor-dot"></div>
+                      <span>S1</span>
+                      <b id="sensor0Value">0</b>
+                    </div>
+                    <div class="sensor-node" id="sensor1">
+                      <div class="sensor-dot"></div>
+                      <span>S2</span>
+                      <b id="sensor1Value">0</b>
+                    </div>
+                    <div class="sensor-node" id="sensor2">
+                      <div class="sensor-dot"></div>
+                      <span>S3</span>
+                      <b id="sensor2Value">0</b>
+                    </div>
+                    <div class="sensor-node" id="sensor3">
+                      <div class="sensor-dot"></div>
+                      <span>S4</span>
+                      <b id="sensor3Value">0</b>
+                    </div>
+                    <div class="sensor-node" id="sensor4">
+                      <div class="sensor-dot"></div>
+                      <span>S5</span>
+                      <b id="sensor4Value">0</b>
+                    </div>
+                  </div>
+
+                  <div class="progress-wrap">
+                    <div class="progress-head">
+                      <span>Track Alignment Confidence</span>
+                      <span id="alignmentPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                      <div class="progress-fill" id="alignmentFill"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="glass-card">
+                  <div class="card-header">
+                    <div>
+                      <h3 class="card-title">Ultrasonic Sensor</h3>
+                      <p class="card-subtitle">Front obstacle awareness and stopping logic.</p>
+                    </div>
+                    <div class="badge blue">HC-SR04</div>
+                  </div>
+
+                  <div class="mini-grid">
+                    <div class="stat-tile">
+                      <div class="top">
+                        <span>Distance</span>
+                        <div class="badge blue">Live</div>
+                      </div>
+                      <div class="big mono"><span id="ultraDistance">0</span> cm</div>
+                      <div class="small">Measured in front of the platform</div>
+                    </div>
+
+                    <div class="stat-tile">
+                      <div class="top">
+                        <span>Obstacle Flag</span>
+                        <div class="badge" id="ultraFlagBadge">Clear</div>
+                      </div>
+                      <div class="big" id="ultraFlagText">CLEAR</div>
+                      <div class="small">Auto-stop condition monitoring</div>
+                    </div>
+                  </div>
+                </div>
+
+              </section>
+
+              <!-- MISSION PAGE -->
+              <section class="page" id="page-mission">
+
+                <div class="glass-card">
+                  <div class="card-header">
+                    <div>
+                      <h3 class="card-title">Route Selection</h3>
+                      <p class="card-subtitle">UI prototype for future destination-based AMCP navigation.</p>
+                    </div>
+                    <div class="badge green">Prototype</div>
+                  </div>
+
+                  <div class="route-grid">
+                    <div class="route-chip selected">Dock A</div>
+                    <div class="route-chip">Dock B</div>
+                    <div class="route-chip">Storage</div>
+                    <div class="route-chip">Lab Zone</div>
+                    <div class="route-chip">Loading Bay</div>
+                    <div class="route-chip">Return Home</div>
+                  </div>
+
+                  <div class="button-row">
+                    <button class="action-btn">Start</button>
+                    <button class="action-btn secondary">Pause</button>
+                    <button class="action-btn danger">Stop</button>
+                  </div>
+                </div>
+
+                <div class="glass-card">
+                  <div class="card-header">
+                    <div>
+                      <h3 class="card-title">Live Mission Context</h3>
+                      <p class="card-subtitle">Real data from telemetry mixed with control-oriented UI.</p>
+                    </div>
+                    <div class="badge yellow">Mission</div>
+                  </div>
+
+                  <div class="signal-row">
+                    <div class="signal-meta">
+                      <strong>Current Motion</strong>
+                      <span>Derived from serial telemetry</span>
+                    </div>
+                    <div class="signal-state" id="missionAction">WAITING</div>
+                  </div>
+
+                  <div class="signal-row">
+                    <div class="signal-meta">
+                      <strong>Path Status</strong>
+                      <span>Whether the route line is being tracked</span>
+                    </div>
+                    <div class="signal-state" id="missionPath">NOT DETECTED</div>
+                  </div>
+
+                  <div class="signal-row">
+                    <div class="signal-meta">
+                      <strong>Junction Status</strong>
+                      <span>Useful for branch-route decisions</span>
+                    </div>
+                    <div class="signal-state" id="missionJunction">NO</div>
+                  </div>
+                </div>
+
+              </section>
+
+              <!-- SYSTEM PAGE -->
+              <section class="page" id="page-system">
+
+                <div class="glass-card">
+                  <div class="card-header">
+                    <div>
+                      <h3 class="card-title">System Overview</h3>
+                      <p class="card-subtitle">Software stack and communication status.</p>
+                    </div>
+                    <div class="badge blue">System</div>
+                  </div>
+
+                  <div class="mini-grid">
+                    <div class="stat-tile">
+                      <div class="top">
+                        <span>Backend</span>
+                        <div class="badge green">Flask</div>
+                      </div>
+                      <div class="big">Online</div>
+                      <div class="small">Dashboard service is running</div>
+                    </div>
+
+                    <div class="stat-tile">
+                      <div class="top">
+                        <span>Serial</span>
+                        <div class="badge blue">USB</div>
+                      </div>
+                      <div class="big mono">115200</div>
+                      <div class="small">Telemetry communication speed</div>
+                    </div>
+
+                    <div class="stat-tile">
+                      <div class="top">
+                        <span>Controller</span>
+                        <div class="badge yellow">ESP32</div>
+                      </div>
+                      <div class="big" id="systemConnection">Offline</div>
+                      <div class="small">Detected device connection status</div>
+                    </div>
+
+                    <div class="stat-tile">
+                      <div class="top">
+                        <span>UI Mode</span>
+                        <div class="badge green">Premium</div>
+                      </div>
+                      <div class="big">Prototype</div>
+                      <div class="small">Apple-inspired phone mockup interface</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="glass-card">
+                  <div class="card-header">
+                    <div>
+                      <h3 class="card-title">Telemetry Feed</h3>
+                      <p class="card-subtitle">Human-readable interpretation of current live state.</p>
+                    </div>
+                    <div class="badge green">Live</div>
+                  </div>
+
+                  <div class="timeline">
+                    <div class="timeline-item">
+                      <div class="timeline-dot"></div>
+                      <div class="timeline-text">
+                        <strong>Connection</strong>
+                        <span id="timelineConnection">Waiting for device availability.</span>
+                      </div>
+                    </div>
+
+                    <div class="timeline-item">
+                      <div class="timeline-dot"></div>
+                      <div class="timeline-text">
+                        <strong>Navigation</strong>
+                        <span id="timelineNavigation">Navigation status will appear here.</span>
+                      </div>
+                    </div>
+
+                    <div class="timeline-item">
+                      <div class="timeline-dot"></div>
+                      <div class="timeline-text">
+                        <strong>Obstacle Monitor</strong>
+                        <span id="timelineObstacle">Obstacle telemetry summary will appear here.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </section>
+
+            </div>
+
+            <div class="tabbar">
+              <button class="tab-btn active" data-page="overview">
+                <div class="icon">⌂</div>
+                <span>Overview</span>
+              </button>
+              <button class="tab-btn" data-page="sensors">
+                <div class="icon">◎</div>
+                <span>Sensors</span>
+              </button>
+              <button class="tab-btn" data-page="mission">
+                <div class="icon">➜</div>
+                <span>Mission</span>
+              </button>
+              <button class="tab-btn" data-page="system">
+                <div class="icon">▣</div>
+                <span>System</span>
+              </button>
+            </div>
+
+            <div class="home-indicator"></div>
+
+          </div>
+        </div>
+      </div>
     </div>
 
+  </div>
 
-    <div class="card" style="margin-top:20px;">
+  <script>
+    const pages = document.querySelectorAll(".page");
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const routeChips = document.querySelectorAll(".route-chip");
 
-        <h3>IR Line Sensors</h3>
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        tabButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
 
-        <div class="sensor-container">
+        const page = btn.dataset.page;
+        pages.forEach(p => p.classList.remove("active"));
+        document.getElementById("page-" + page).classList.add("active");
+      });
+    });
 
-            <div class="sensor" id="s0">0</div>
-            <div class="sensor" id="s1">0</div>
-            <div class="sensor" id="s2">0</div>
-            <div class="sensor" id="s3">0</div>
-            <div class="sensor" id="s4">0</div>
+    routeChips.forEach(chip => {
+      chip.addEventListener("click", () => {
+        routeChips.forEach(c => c.classList.remove("selected"));
+        chip.classList.add("selected");
+      });
+    });
 
-        </div>
+    function setTime() {
+      const now = new Date();
+      const options = { hour: 'numeric', minute: '2-digit' };
+      document.getElementById("statusTime").textContent = now.toLocaleTimeString([], options);
+    }
 
-    </div>
+    setTime();
+    setInterval(setTime, 1000);
 
-    <footer>
-        Cargo OS • AMCP Prototype
-    </footer>
+    function updateBadgeState(el, text, type) {
+      el.textContent = text;
+      el.className = "badge " + type;
+    }
 
-</main>
+    function updateSignalPill(el, text, mode = "neutral") {
+      el.textContent = text;
+      el.style.background =
+        mode === "good" ? "rgba(54,214,125,0.14)" :
+        mode === "danger" ? "rgba(255,95,87,0.14)" :
+        mode === "accent" ? "rgba(255,216,77,0.14)" :
+        "rgba(255,255,255,0.07)";
+      el.style.borderColor =
+        mode === "good" ? "rgba(54,214,125,0.2)" :
+        mode === "danger" ? "rgba(255,95,87,0.2)" :
+        mode === "accent" ? "rgba(255,216,77,0.2)" :
+        "rgba(255,255,255,0.08)";
+      el.style.color =
+        mode === "good" ? "#85f0b1" :
+        mode === "danger" ? "#ff9f9b" :
+        mode === "accent" ? "#ffe892" :
+        "#e6edf7";
+    }
 
+    function actionDescription(action) {
+      switch ((action || "").toUpperCase()) {
+        case "FORWARD":
+          return "AMCP is currently moving forward along the detected route line.";
+        case "LEFT":
+          return "AMCP is adjusting left to stay aligned with the path.";
+        case "RIGHT":
+          return "AMCP is adjusting right to stay aligned with the path.";
+        case "STOP":
+          return "AMCP is stopped. This may be due to logic, obstacle detection, or no route state.";
+        case "WAITING":
+        default:
+          return "Waiting for live robot telemetry. Connect the ESP32 to begin live monitoring.";
+      }
+    }
 
-<script>
+    function calculateAlignment(line) {
+      if (!line || line.length !== 5) return 0;
 
-async function updateTelemetry() {
+      const activeCount = [...line].filter(v => v === "1").length;
+      const centerActive = line[2] === "1";
 
-    try {
+      let score = activeCount * 15;
+      if (centerActive) score += 35;
+      if (line === "00100") score = 100;
+      if (line === "00000") score = 0;
 
+      return Math.min(score, 100);
+    }
+
+    async function updateTelemetry() {
+      try {
         const response = await fetch("/api/telemetry");
-
         const data = await response.json();
 
+        const connected = !!data.connected;
+        const line = (data.line || "00000").padEnd(5, "0").slice(0, 5);
+        const action = (data.action || "WAITING").toUpperCase();
+        const distance = Number(data.distance_cm ?? 0);
+        const obstacle = !!data.obstacle;
+        const junction = !!data.junction;
+        const pathDetected = !!data.path_detected;
 
-        const connection = document.getElementById("connection");
+        // Hero side
+        document.getElementById("heroConnection").textContent = connected ? "Connected" : "Disconnected";
+        document.getElementById("heroAction").textContent = action;
+        document.getElementById("heroDistance").textContent = distance;
+        document.getElementById("heroPath").textContent = pathDetected ? "Detected" : "No Path";
 
-        if (data.connected) {
-            connection.textContent = "ESP32 CONNECTED";
-        } else {
-            connection.textContent = "ESP32 DISCONNECTED";
-        }
+        // Main status
+        document.getElementById("statusActionBig").textContent = action;
+        document.getElementById("statusDescription").textContent = actionDescription(action);
 
+        document.getElementById("connectionValue").textContent = connected ? "Online" : "Offline";
+        document.getElementById("connectionCaption").textContent = connected
+          ? "ESP32 serial device is actively linked"
+          : "No device currently detected";
 
-        document.getElementById("action").textContent =
-            data.action || "WAITING";
+        document.getElementById("distanceValue").textContent = distance;
+        document.getElementById("junctionValue").textContent = junction ? "YES" : "NO";
+        document.getElementById("pathValue").textContent = pathDetected ? "DETECTED" : "NOT DETECTED";
 
+        // Island
+        document.getElementById("islandText").textContent = connected ? "ESP32 CONNECTED" : "LIVE TELEMETRY";
+        document.getElementById("islandDot").style.background = connected ? "var(--green)" : "var(--red)";
+        document.getElementById("islandDot").style.boxShadow = connected
+          ? "0 0 10px rgba(54,214,125,0.8)"
+          : "0 0 10px rgba(255,95,87,0.8)";
 
-        document.getElementById("distance").textContent =
-            data.distance_cm ?? 0;
+        // Summary pills
+        updateSignalPill(
+          document.getElementById("obstacleStateBadge"),
+          obstacle ? "DETECTED" : "CLEAR",
+          obstacle ? "danger" : "good"
+        );
 
+        updateSignalPill(
+          document.getElementById("linePatternText"),
+          line,
+          "accent"
+        );
 
-        document.getElementById("obstacle").textContent =
-            data.obstacle ? "DETECTED" : "CLEAR";
+        updateSignalPill(
+          document.getElementById("actionPill"),
+          action,
+          pathDetected ? "accent" : "neutral"
+        );
 
+        // Sensors
+        [...line].forEach((val, idx) => {
+          const sensor = document.getElementById("sensor" + idx);
+          const sensorValue = document.getElementById("sensor" + idx + "Value");
 
-        document.getElementById("junction").textContent =
-            data.junction ? "YES" : "NO";
+          sensorValue.textContent = val;
 
-
-        document.getElementById("path").textContent =
-            data.path_detected ? "DETECTED" : "NOT DETECTED";
-
-
-        const sensors = (data.line || "00000").split("");
-
-
-        sensors.forEach((value, index) => {
-
-            const element = document.getElementById("s" + index);
-
-            if (!element) return;
-
-            element.textContent = value;
-
-            if (value === "1") {
-                element.classList.add("active");
-            } else {
-                element.classList.remove("active");
-            }
-
+          if (val === "1") {
+            sensor.classList.add("active");
+          } else {
+            sensor.classList.remove("active");
+          }
         });
 
-    }
+        const alignment = calculateAlignment(line);
+        document.getElementById("alignmentPercent").textContent = alignment + "%";
+        document.getElementById("alignmentFill").style.width = alignment + "%";
 
-    catch (error) {
+        document.getElementById("ultraDistance").textContent = distance;
+        document.getElementById("ultraFlagText").textContent = obstacle ? "DETECTED" : "CLEAR";
 
+        updateBadgeState(
+          document.getElementById("ultraFlagBadge"),
+          obstacle ? "Blocked" : "Clear",
+          obstacle ? "red" : "green"
+        );
+
+        // Mission
+        updateSignalPill(document.getElementById("missionAction"), action, "accent");
+        updateSignalPill(document.getElementById("missionPath"), pathDetected ? "DETECTED" : "NOT DETECTED", pathDetected ? "good" : "danger");
+        updateSignalPill(document.getElementById("missionJunction"), junction ? "YES" : "NO", junction ? "accent" : "neutral");
+
+        // System
+        document.getElementById("systemConnection").textContent = connected ? "Online" : "Offline";
+
+        // Timeline
+        document.getElementById("timelineConnection").textContent = connected
+          ? "ESP32 has been detected and the live serial telemetry stream is active."
+          : "The dashboard is running, but the ESP32 device is not currently connected.";
+
+        document.getElementById("timelineNavigation").textContent =
+          "Current action: " + action + ". IR pattern: " + line + ". Path " +
+          (pathDetected ? "is being detected." : "is not being detected.");
+
+        document.getElementById("timelineObstacle").textContent =
+          obstacle
+            ? "Obstacle flag is active. Front distance is " + distance + " cm."
+            : "Route ahead appears clear. Current measured distance is " + distance + " cm.";
+
+      } catch (error) {
         console.error("Telemetry error:", error);
 
+        document.getElementById("heroConnection").textContent = "Error";
+        document.getElementById("connectionValue").textContent = "Error";
+        document.getElementById("connectionCaption").textContent = "Failed to fetch telemetry";
+        document.getElementById("timelineConnection").textContent = "Dashboard could not fetch telemetry from the backend API.";
+      }
     }
 
-}
-
-
-setInterval(updateTelemetry, 500);
-
-updateTelemetry();
-
-</script>
-
+    updateTelemetry();
+    setInterval(updateTelemetry, 700);
+  </script>
 </body>
 </html>
